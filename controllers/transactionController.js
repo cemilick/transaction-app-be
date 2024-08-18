@@ -66,7 +66,11 @@ router.post('/transaction', async (req, res) => {
 
 router.get('/transaction', async (req, res) => {
     try {
-        const transactions = await Transaction.findAll();
+        let params = {};
+        if (req.query.customer_id) {
+            params = { where: { customer_id: req.query.customer_id } };
+        }
+        const transactions = await Transaction.findAll(params);
         responseJson(res, 200, 'Success', transactions);
     } catch (err) {
         responseJson(res, 500, err.message, null);
