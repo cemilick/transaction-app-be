@@ -28,7 +28,7 @@ router.post('/transaction', async (req, res) => {
                 type
             });
 
-            await Wallet.update({ balance: customer.Wallet.balance + amount }, { where: { id: customer.Wallet.id } });
+            await Wallet.update({ balance: parseFloat(customer.Wallet.balance) + parseFloat(amount) }, { where: { id: customer.Wallet.id } });
             await Transaction.update({ status: result.status }, { where: { id: transaction.id } });
 
             transaction = await Transaction.findAll({ where: { id: transaction.id } });
@@ -66,9 +66,16 @@ router.post('/transaction', async (req, res) => {
 
 router.get('/transaction', async (req, res) => {
     try {
-        let params = {};
+        let params = {
+            include: 'Customer',
+            order: [['createdAt', 'DESC']]
+        };
         if (req.query.customer_id) {
-            params = { where: { customer_id: req.query.customer_id } };
+            params = {
+                where: { customer_id: req.query.customer_id },
+                include: 'Customer',
+                order: [['createdAt', 'DESC']]
+            };
         }
         const transactions = await Transaction.findAll(params);
         responseJson(res, 200, 'Success', transactions);
